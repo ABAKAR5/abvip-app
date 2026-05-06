@@ -50,42 +50,56 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
+      extendBody: true,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppColors.border, width: 0.5),
-          ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Accueil',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined),
-              activeIcon: Icon(Icons.calendar_month),
-              label: 'Formations',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.code_outlined),
-              activeIcon: Icon(Icons.code),
-              label: 'GitHub',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_outlined),
-              activeIcon: Icon(Icons.notifications),
-              label: 'Notifs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.admin_panel_settings_outlined),
-              activeIcon: Icon(Icons.admin_panel_settings),
-              label: 'Admin',
+        margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.15),
+              blurRadius: 25,
+              offset: const Offset(0, 8),
             ),
           ],
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) => setState(() => _currentIndex = index),
+            backgroundColor: Colors.transparent,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home_rounded),
+                label: 'Accueil',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.school_outlined),
+                activeIcon: Icon(Icons.school_rounded),
+                label: 'Formations',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.code_rounded),
+                activeIcon: Icon(Icons.code_rounded),
+                label: 'GitHub',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.notifications_outlined),
+                activeIcon: Icon(Icons.notifications_rounded),
+                label: 'Notifs',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.admin_panel_settings_outlined),
+                activeIcon: Icon(Icons.admin_panel_settings_rounded),
+                label: 'Admin',
+              ),
+            ],
+          ),
         ),
       ),
     );

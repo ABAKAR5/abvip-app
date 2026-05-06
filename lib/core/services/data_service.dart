@@ -10,6 +10,7 @@ class DataService {
 
   static const String _announcementsKey = 'announcements_data';
   static const String _formationsKey = 'formations_data';
+  static const String _candidaturesKey = 'candidatures_data';
 
   late SharedPreferences _prefs;
 
@@ -83,5 +84,34 @@ class DataService {
       'prix': e.prix,
     }).toList();
     await _prefs.setString(_formationsKey, jsonEncode(jsonList));
+  }
+
+  // --- Candidatures (Applications) ---
+
+  List<Map<String, dynamic>> getCandidatures() {
+    final String? data = _prefs.getString(_candidaturesKey);
+    if (data == null) return [];
+    try {
+      final List<dynamic> jsonList = jsonDecode(data);
+      return jsonList.cast<Map<String, dynamic>>();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<void> saveCandidature(Map<String, dynamic> candidature) async {
+    final List<Map<String, dynamic>> current = getCandidatures();
+    current.insert(0, {
+      ...candidature,
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'date': DateTime.now().toIso8601String(),
+    });
+    await _prefs.setString(_candidaturesKey, jsonEncode(current));
+  }
+
+  Future<void> deleteCandidature(String id) async {
+    final List<Map<String, dynamic>> current = getCandidatures();
+    current.removeWhere((element) => element['id'] == id);
+    await _prefs.setString(_candidaturesKey, jsonEncode(current));
   }
 }

@@ -191,27 +191,61 @@ class _FormationsScreenState extends State<FormationsScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              backgroundColor: AppColors.surface,
-              title: Text(
-                formation.statut == 'ouvert' ? 'S\'inscrire à la formation' : 'Être notifié',
-                style: const TextStyle(fontSize: 18, color: AppColors.textPrimary),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              title: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    formation.statut == 'ouvert' ? 'Inscription Formation' : 'Être notifié',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  ),
+                ],
               ),
               content: SizedBox(
-                width: 400,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      formation.titre,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nom complet', border: OutlineInputBorder())),
-                    const SizedBox(height: 12),
-                    TextField(controller: emailCtrl, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder())),
-                    const SizedBox(height: 12),
-                    TextField(controller: phoneCtrl, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'Téléphone', border: OutlineInputBorder())),
-                  ],
+                width: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.school_outlined, color: AppColors.primary),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                formation.titre,
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.primary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildDialogField(nameCtrl, 'Nom complet', Icons.person_outline),
+                      const SizedBox(height: 16),
+                      _buildDialogField(emailCtrl, 'Email', Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+                      const SizedBox(height: 16),
+                      _buildDialogField(phoneCtrl, 'Téléphone', Icons.phone_android_outlined, keyboardType: TextInputType.phone),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Vos données seront traitées confidentiellement.',
+                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -223,48 +257,81 @@ class _FormationsScreenState extends State<FormationsScreen> {
                   onPressed: isSending
                       ? null
                       : () async {
-                          if (nameCtrl.text.trim().isEmpty || emailCtrl.text.trim().isEmpty) return;
+                          if (nameCtrl.text.trim().isEmpty || emailCtrl.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir les champs obligatoires.')));
+                            return;
+                          }
                           setDialogState(() => isSending = true);
                           try {
+                            final candidature = {
+                              'name': nameCtrl.text.trim(),
+                              'email': emailCtrl.text.trim(),
+                              'phone': phoneCtrl.text.trim(),
+                              'formation': formation.titre,
+                              'type': formation.statut == 'ouvert' ? 'Inscription' : 'Notification',
+                            };
+
+                            // Sauvegarde locale pour l'admin
+                            await DataService().saveCandidature(candidature);
+
+                            // Envoi externe (Formspree)
                             await http.post(
                               Uri.parse(AppConstants.formspreeEndpoint),
                               headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-                              body: jsonEncode({
-                                'name': nameCtrl.text.trim(),
-                                'email': emailCtrl.text.trim(),
-                                'phone': phoneCtrl.text.trim(),
-                                'formation': formation.titre,
-                                'type': formation.statut == 'ouvert' ? 'Inscription Formation' : 'Demande Notification',
-                              }),
+                              body: jsonEncode(candidature),
                             );
+
                             if (!context.mounted) return;
                             Navigator.pop(context);
                             setState(() => _inscriptions.add(formation.id));
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(formation.statut == 'ouvert'
-                                    ? 'Inscription validée ! Vous recevrez des rappels avant le début.'
+                                    ? 'Inscription validée ! Retrouvez-la dans l\'onglet "Mes inscriptions".'
                                     : 'C\'est noté ! Nous vous préviendrons dès l\'ouverture.'),
-                                backgroundColor: AppColors.teal,
+                                backgroundColor: AppColors.primary,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                             );
                           } catch (_) {
                             setDialogState(() => isSending = false);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Erreur réseau. Veuillez réessayer.')),
+                              const SnackBar(content: Text('Une erreur est survenue. Veuillez réessayer.')),
                             );
                           }
                         },
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
                   child: isSending
-                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Valider'),
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Valider l\'inscription', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             );
           },
         );
       },
+    );
+  }
+
+  Widget _buildDialogField(TextEditingController controller, String label, IconData icon, {TextInputType? keyboardType}) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border.withOpacity(0.5))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+      ),
     );
   }
 }

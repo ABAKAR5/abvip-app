@@ -23,23 +23,23 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _sending = false;
   bool _isDark = false;
 
-  Color get _bg => _isDark ? const Color(0xFF08052E) : const Color(0xFFF5F7FF);
-  Color get _appBarBg => _isDark ? const Color(0xDE08052E) : Colors.white;
-  Color get _text => _isDark ? Colors.white : const Color(0xFF171726);
-  Color get _subText => _isDark ? const Color(0xFFCFC6FF) : const Color(0xFF667085);
+  Color get _bg => _isDark ? AppColors.bgDark : AppColors.bgLight;
+  Color get _appBarBg => _isDark ? AppColors.bgDark.withOpacity(0.9) : Colors.white;
+  Color get _text => _isDark ? Colors.white : AppColors.textPrimary;
+  Color get _subText => _isDark ? const Color(0xFFCFC6FF) : AppColors.textSecondary;
   Color get _card => _isDark ? const Color(0x14FFFFFF) : Colors.white;
-  Color get _border => _isDark ? const Color(0x2BFFFFFF) : const Color(0xFFE4E7EC);
+  Color get _border => _isDark ? const Color(0x2BFFFFFF) : AppColors.border;
 
   BoxDecoration get _cardDecoration => BoxDecoration(
         color: _card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _border),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _border.withOpacity(0.5)),
         boxShadow: [
           if (!_isDark)
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             )
         ],
       );
@@ -167,14 +167,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeroTop() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF21084E), Color(0xFF300A74), Color(0xFF0D2E7D)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        borderRadius: BorderRadius.circular(28),
+        gradient: AppColors.premiumGradient,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,15 +203,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0x22FFFFFF),
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: const Color(0x30FFFFFF)),
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
                   ),
                   child: const Text(
-                    'Disponible pour projets freelance',
-                    style: TextStyle(color: Color(0xFFF5EFFF), fontSize: 10, fontWeight: FontWeight.w500),
+                    'Disponible pour nouveaux projets',
+                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -585,13 +588,9 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              gradient: LinearGradient(
-                colors: _isDark
-                    ? [const Color(0xFF2A1B54), const Color(0xFF1E1145)]
-                    : [const Color(0xFFE900A3), const Color(0xFF5E2BFF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: _isDark
+                  ? const LinearGradient(colors: [Color(0xFF2A1B54), Color(0xFF1E1145)])
+                  : AppColors.accentGradient,
               boxShadow: [
                 if (!_isDark)
                   BoxShadow(
@@ -692,10 +691,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 children: [
                   Container(
-                    width: 12,
-                    height: 12,
+                    width: 14,
+                    height: 14,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE900A3),
+                      gradient: AppColors.accentGradient,
                       shape: BoxShape.circle,
                     ),
                   ),

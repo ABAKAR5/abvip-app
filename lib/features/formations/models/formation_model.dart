@@ -22,6 +22,32 @@ class Formation {
     required this.niveau,
     required this.prix,
   });
+
+  Formation copyWith({
+    String? id,
+    String? titre,
+    String? description,
+    String? statut,
+    DateTime? dateDebut,
+    int? placesTotal,
+    int? placesRestantes,
+    String? duree,
+    String? niveau,
+    double? prix,
+  }) {
+    return Formation(
+      id: id ?? this.id,
+      titre: titre ?? this.titre,
+      description: description ?? this.description,
+      statut: statut ?? this.statut,
+      dateDebut: dateDebut ?? this.dateDebut,
+      placesTotal: placesTotal ?? this.placesTotal,
+      placesRestantes: placesRestantes ?? this.placesRestantes,
+      duree: duree ?? this.duree,
+      niveau: niveau ?? this.niveau,
+      prix: prix ?? this.prix,
+    );
+  }
 }
 
 // Données de test — on remplacera par Firebase plus tard
